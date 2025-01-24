@@ -29,6 +29,29 @@ CATEGORYS = {
 
 
 @DATASETS.register_module
+class CustomDataset(BaseDataset):
+    def __init__(self, data_root, ann_file, pipeline, test_mode=True, cfg=None):
+        super(CustomDataset, self).__init__(data_root, ann_file, pipeline, test_mode)
+        self.ann_file = ann_file
+        self.cfg = cfg if cfg else {}
+        self.data_infos = self.load_annotations()  # Use self.data_infos
+
+    def load_annotations(self):
+        # Load images listed in `ann_file`
+        with open(self.ann_file, 'r') as f:
+            lines = f.readlines()
+        data_infos = []
+        for line in lines:
+            img_path = os.path.join(self.data_root, line.strip())
+            data_infos.append(dict(img_path=img_path))
+        return data_infos
+
+    def get_ann_info(self, idx):
+        # No annotation info needed for testing
+        return None
+
+
+@DATASETS.register_module
 class CULane(BaseDataset):
     def __init__(self, data_root, split, processes=None, cfg=None):
         super().__init__(data_root, split, processes=processes, cfg=cfg)
